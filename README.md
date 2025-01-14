@@ -141,3 +141,43 @@ This application is designed to provide responses to any queries regarding ticke
 3. Access the frontend application at `http://localhost:3000`.
 
 4. MongoDB will be running at `mongodb://localhost:27017`.
+
+## Ingestion Endpoint
+
+### Ingest Tickets
+
+The application provides an endpoint to ingest current tickets as embeddings into the vector database. The ingestion is based on the following parameters:
+
+- **ProjectKey**: The key of the Jira project.
+- **MaxTickets**: The maximum number of tickets to ingest.
+- **IngestionType**: The type of ingestion (Full/Delta).
+
+#### Endpoint
+
+`POST /ingest`
+
+#### Request Body
+
+```json
+{
+  "ProjectKey": "string",
+  "MaxTickets": 10,
+  "IngestionType": "Full"
+}
+```
+
+#### Response
+
+```json
+{
+  "message": "Ingestion successful"
+}
+```
+
+### Example
+
+To ingest tickets from a Jira project with the key "PROJ", with a maximum of 10 tickets, and using full ingestion:
+
+```sh
+curl -X POST "http://localhost:8000/ingest" -H "Content-Type: application/json" -d '{"ProjectKey": "PROJ", "MaxTickets": 10, "IngestionType": "Full"}'
+```
