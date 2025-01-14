@@ -1,10 +1,11 @@
 import requests
 from fireworksai import Embeddings
+import os
 
 class JiraConnector:
-    def __init__(self, jira_url, username, api_token):
-        self.jira_url = jira_url
-        self.auth = (username, api_token)
+    def __init__(self):
+        self.jira_url = os.getenv("JIRA_URL")
+        self.auth = (os.getenv("JIRA_USERNAME"), os.getenv("JIRA_API_TOKEN"))
 
     def fetch_tickets(self, jql):
         url = f"{self.jira_url}/rest/api/2/search"

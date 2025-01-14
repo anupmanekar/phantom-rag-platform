@@ -10,6 +10,14 @@ services:
       - "8000:8000"
     networks:
       - app-network
+    environment:
+      - JIRA_URL=${JIRA_URL}
+      - JIRA_USERNAME=${JIRA_USERNAME}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - COLLECTION_NAME=${COLLECTION_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
 
   frontend:
     build:
