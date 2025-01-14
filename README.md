@@ -181,3 +181,13 @@ To ingest tickets from a Jira project with the key "PROJ", with a maximum of 10 
 ```sh
 curl -X POST "http://localhost:8000/ingest" -H "Content-Type: application/json" -d '{"ProjectKey": "PROJ", "MaxTickets": 10, "IngestionType": "Full"}'
 ```
+
+## Swagger Documentation
+
+The application provides Swagger documentation for the supported APIs. You can access the Swagger UI at the following URL:
+
+```
+http://localhost:8000/docs
+```
+
+This documentation provides a user-friendly interface to explore and test the available API endpoints.
