@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the backend directory into the Docker image
 COPY backend /app
 
+# Copy the .env file into the Docker image
+COPY .env /app/.env
+
 # Install the required dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 

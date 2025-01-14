@@ -1,10 +1,11 @@
 from langchain.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
+import os
 
 class Summarizer:
-    def __init__(self, api_key):
-        self.llm = OpenAI(api_key=api_key)
+    def __init__(self):
+        self.llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.prompt_template = PromptTemplate(
             input_variables=["results"],
             template="Summarize the following Jira ticket search results: {results}"

@@ -1,9 +1,13 @@
+import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 import uvicorn
 from backend.jira_connector import JiraConnector
 from backend.embedding_storage import EmbeddingStorage
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -27,12 +31,20 @@ async def search(query: Query):
 @app.post("/ingest")
 async def ingest(request: IngestRequest):
     try:
-        jira_connector = JiraConnector(jira_url="your_jira_url", username="your_username", api_token="your_api_token")
+        jira_connector = JiraConnector(
+            jira_url=os.getenv("JIRA_URL"),
+            username=os.getenv("JIRA_USERNAME"),
+            api_token=os.getenv("JIRA_API_TOKEN")
+        )
         jql = f"project={request.ProjectKey} ORDER BY created DESC"
         tickets = jira_connector.fetch_tickets(jql)[:request.MaxTickets]
         embeddings = jira_connector.convert_to_embeddings(tickets)
         
-        embedding_storage = EmbeddingStorage(mongo_uri="your_mongo_uri", db_name="your_db_name", collection_name="your_collection_name")
+        embedding_storage = EmbeddingStorage(
+            mongo_uri=os.getenv("MONGO_URI"),
+            db_name=os.getenv("DB_NAME"),
+            collection_name=os.getenv("COLLECTION_NAME")
+        )
         embedding_storage.store_embeddings(embeddings)
         
         return {"message": "Ingestion successful"}

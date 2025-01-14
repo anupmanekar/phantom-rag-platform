@@ -1,12 +1,13 @@
 from pymongo import MongoClient
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import os
 
 class EmbeddingStorage:
-    def __init__(self, mongo_uri, db_name, collection_name):
-        self.client = MongoClient(mongo_uri)
-        self.db = self.client[db_name]
-        self.collection = self.db[collection_name]
+    def __init__(self):
+        self.client = MongoClient(os.getenv("MONGO_URI"))
+        self.db = self.client[os.getenv("DB_NAME")]
+        self.collection = self.db[os.getenv("COLLECTION_NAME")]
 
     def store_embeddings(self, embeddings):
         self.collection.insert_many(embeddings)
