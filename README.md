@@ -102,3 +102,42 @@ This application is designed to provide responses to any queries regarding ticke
     ```sh
     python monitoring/observability.py
     ```
+
+## Docker Setup Instructions
+
+### Building Docker Containers
+
+1. Build the backend Docker container:
+    ```sh
+    docker build -t backend ./backend
+    ```
+
+2. Build the frontend Docker container:
+    ```sh
+    docker build -t frontend ./frontend
+    ```
+
+### Running Docker Containers
+
+1. Run the backend Docker container:
+    ```sh
+    docker run -p 8000:8000 backend
+    ```
+
+2. Run the frontend Docker container:
+    ```sh
+    docker run -p 3000:3000 frontend
+    ```
+
+### Using Docker Compose
+
+1. Start all services using docker-compose:
+    ```sh
+    docker-compose up --build
+    ```
+
+2. Access the backend API at `http://localhost:8000`.
+
+3. Access the frontend application at `http://localhost:3000`.
+
+4. MongoDB will be running at `mongodb://localhost:27017`.
