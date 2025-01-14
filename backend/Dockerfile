@@ -13,5 +13,8 @@ COPY .env /app/.env
 # Install the required dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Add fastapi to the list of dependencies
+RUN echo "fastapi" >> requirements.txt
+
 # Set the entrypoint to run the FastAPI application using uvicorn
 ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -6,6 +6,7 @@ import uvicorn
 from backend.jira_connector import JiraConnector
 from backend.embedding_storage import EmbeddingStorage
 from dotenv import load_dotenv
+from fastapi.openapi.utils import get_openapi
 
 load_dotenv()
 
@@ -50,6 +51,20 @@ async def ingest(request: IngestRequest):
         return {"message": "Ingestion successful"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Jira RAG App",
+        version="1.0.0",
+        description="API documentation for the Jira RAG App",
+        routes=app.routes,
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
