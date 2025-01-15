@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List
 import uvicorn
 from backend.jira_connector import JiraConnector
+from backend.azure_devops_connector import AzureDevOpsConnector
 from backend.embedding_storage import EmbeddingStorage
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
@@ -29,8 +30,8 @@ async def search(query: Query):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/ingest")
-async def ingest(request: IngestRequest):
+@app.post("/ingest-jira")
+async def ingest_jira(request: IngestRequest):
     try:
         jira_connector = JiraConnector(
             jira_url=os.getenv("JIRA_URL"),
@@ -40,6 +41,29 @@ async def ingest(request: IngestRequest):
         jql = f"project = {request.ProjectKey} ORDER BY created DESC"
         tickets = jira_connector.fetch_tickets(jql)[:request.MaxTickets]
         embeddings = jira_connector.convert_to_embeddings(tickets)
+        
+        embedding_storage = EmbeddingStorage(
+            mongo_uri=os.getenv("MONGO_URI"),
+            db_name=os.getenv("DB_NAME"),
+            collection_name=os.getenv("COLLECTION_NAME")
+        )
+        embedding_storage.store_embeddings(embeddings)
+        
+        return {"message": "Ingestion successful"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/ingest-azure")
+async def ingest_azure(request: IngestRequest):
+    try:
+        azure_connector = AzureDevOpsConnector(
+            azure_devops_url=os.getenv("AZURE_DEVOPS_URL"),
+            pat=os.getenv("AZURE_DEVOPS_PAT"),
+            project=os.getenv("AZURE_DEVOPS_PROJECT")
+        )
+        query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.TeamProject] = '{request.ProjectKey}'"
+        tickets = azure_connector.fetch_tickets(query)[:request.MaxTickets]
+        embeddings = azure_connector.convert_to_embeddings(tickets)
         
         embedding_storage = EmbeddingStorage(
             mongo_uri=os.getenv("MONGO_URI"),

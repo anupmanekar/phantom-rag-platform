@@ -6,3 +6,4 @@ pymongo
 pydantic
 langchain-mongodb
 python-dotenv
+requests
