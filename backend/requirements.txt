@@ -7,3 +7,6 @@ pydantic
 langchain-mongodb
 python-dotenv
 requests
+azure-core
+azure-devops
+msrest
