@@ -56,6 +56,7 @@ async def ingest_jira(request: IngestRequest):
 @app.get("/ingest-azure")
 async def ingest_azure():
     try:
+        print("Ingesting Azure DevOps")
         azure_connector = AzureDevOpsConnector(
             azure_devops_url=os.environ.get("AZURE_DEVOPS_URL"),
             pat=os.environ.get("AZURE_DEVOPS_PAT"),
@@ -64,18 +65,16 @@ async def ingest_azure():
         )
         project = os.environ.get("AZURE_DEVOPS_PROJECT")
         # query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.TeamProject] = '{request.ProjectKey}'"
-        query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.TeamProject] = '{project}'"
+        query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.WorkItemType] = 'Task' and [System.TeamProject] = '{project}'"
         #tickets = azure_connector.fetch_tickets(query)[:request.MaxTickets]
-        tickets = azure_connector.fetch_tickets(query)[:2]
-        print (tickets[0].as_dict())
-        #embeddings = azure_connector.convert_to_embeddings(tickets)
-        
-        # embedding_storage = EmbeddingStorage(
-        #     mongo_uri=os.getenv("MONGO_URI"),
-        #     db_name=os.getenv("DB_NAME"),
-        #     collection_name=os.getenv("COLLECTION_NAME")
-        # )
-        # embedding_storage.store_embeddings(embeddings)
+        tickets = azure_connector.fetch_tickets(query)[:50]
+        embeddings = azure_connector.convert_to_embeddings(tickets)
+        embedding_storage = EmbeddingStorage(
+            mongo_uri=os.environ.get("MONGO_URI"),
+            db_name=os.environ.get("DB_NAME"),
+            collection_name=os.environ.get("COLLECTION_NAME")
+        )
+        embedding_storage.store_embeddings(embeddings)
         
         return {"message": "Ingestion successful"}
     except Exception as e:

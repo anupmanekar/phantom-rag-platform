@@ -50,14 +50,18 @@ class AzureDevOpsConnector:
         return []
 
 
-    def convert_to_embeddings(self, tickets):
-        embeddings = FireworksEmbeddings()
+    def convert_to_embeddings(self, tickets: list[WorkItem]):
+        embeddings = FireworksEmbeddings(model='nomic-ai/nomic-embed-text-v1.5')
         ticket_embeddings = []
         for ticket in tickets:
-            ticket_data = f"{ticket['id']} {ticket['fields']['System.Title']} {ticket['fields']['System.Description']}"
-            embedding = embeddings.encode(ticket_data)
+            ticket_dict = ticket.as_dict()
+            description = ticket_dict['fields']['System.Description'] if 'System.Description' in ticket_dict['fields'] else ''
+            ticket_data = f"{ticket_dict['fields']['System.Title']} {description}"
+            embedding = embeddings.embed_documents(ticket_data)
             ticket_embeddings.append({
-                "ticket_id": ticket["id"],
-                "embedding": embedding
+                "ticket_id": ticket.id,
+                "ticket_title": ticket_dict['fields']['System.Title'],
+                "embedding": embedding[0]
             })
+            print(f"Ticket {ticket.id} processed")
         return ticket_embeddings

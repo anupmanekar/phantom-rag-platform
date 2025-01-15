@@ -3,12 +3,14 @@ import numpy as np
 import os
 
 class EmbeddingStorage:
-    def __init__(self):
-        self.client = MongoClient(os.getenv("MONGO_URI"))
-        self.db = self.client[os.getenv("DB_NAME")]
-        self.collection = self.db[os.getenv("COLLECTION_NAME")]
+    def __init__(self, mongo_uri, db_name, collection_name):
+        print(f"Connecting to MongoDB at {mongo_uri}")
+        self.client = MongoClient(mongo_uri)
+        self.db = self.client.get_database(db_name)
+        self.collection = self.db.get_collection(collection_name)
 
     def store_embeddings(self, embeddings):
+        self.collection.delete_many({})
         self.collection.insert_many(embeddings)
 
     def search_embeddings(self, query_embedding, threshold=0.8):
