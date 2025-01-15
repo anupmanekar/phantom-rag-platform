@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import os
 
@@ -13,15 +12,15 @@ class EmbeddingStorage:
         self.collection.insert_many(embeddings)
 
     def search_embeddings(self, query_embedding, threshold=0.8):
-        all_embeddings = list(self.collection.find({}, {"_id": 0, "embedding": 1, "ticket_id": 1}))
-        embeddings = [item["embedding"] for item in all_embeddings]
-        ticket_ids = [item["ticket_id"] for item in all_embeddings]
+        # all_embeddings = list(self.collection.find({}, {"_id": 0, "embedding": 1, "ticket_id": 1}))
+        # embeddings = [item["embedding"] for item in all_embeddings]
+        # ticket_ids = [item["ticket_id"] for item in all_embeddings]
 
-        similarities = cosine_similarity([query_embedding], embeddings)[0]
-        results = []
-        for i, similarity in enumerate(similarities):
-            if similarity >= threshold:
-                results.append({"ticket_id": ticket_ids[i], "similarity": similarity})
+        # similarities = cosine_similarity([query_embedding], embeddings)[0]
+        # results = []
+        # for i, similarity in enumerate(similarities):
+        #     if similarity >= threshold:
+        #         results.append({"ticket_id": ticket_ids[i], "similarity": similarity})
 
-        results = sorted(results, key=lambda x: x["similarity"], reverse=True)[:5]
-        return results
+        # results = sorted(results, key=lambda x: x["similarity"], reverse=True)[:5]
+        return []

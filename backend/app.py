@@ -37,7 +37,7 @@ async def ingest(request: IngestRequest):
             username=os.getenv("JIRA_USERNAME"),
             api_token=os.getenv("JIRA_API_TOKEN")
         )
-        jql = f"project={request.ProjectKey} ORDER BY created DESC"
+        jql = f"project = {request.ProjectKey} ORDER BY created DESC"
         tickets = jira_connector.fetch_tickets(jql)[:request.MaxTickets]
         embeddings = jira_connector.convert_to_embeddings(tickets)
         
