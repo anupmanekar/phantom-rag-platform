@@ -57,7 +57,7 @@ async def search(query: Query):
 @app.post("/ingest-jira")
 async def ingest_jira(request: IngestRequest):
     try:
-        response = rag_operations.ingest_jira(jira_connector, request.ProjectKey, request.MaxTickets)
+        response = embedding_storage.ingest_jira(jira_connector, request.ProjectKey, request.MaxTickets)
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -65,7 +65,7 @@ async def ingest_jira(request: IngestRequest):
 @app.get("/ingest-azure")
 async def ingest_azure():
     try:
-        response = rag_operations.ingest_azure(azure_connector, os.environ.get("AZURE_DEVOPS_PROJECT"))
+        response = embedding_storage.ingest_azure(azure_connector, os.environ.get("AZURE_DEVOPS_PROJECT"))
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
