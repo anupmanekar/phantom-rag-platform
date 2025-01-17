@@ -7,12 +7,27 @@ from msrest.authentication import BasicAuthentication
 from azure.devops.v7_1.work_item_tracking.models import Wiql, WorkItem
 
 class AzureDevOpsConnector:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(AzureDevOpsConnector, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, azure_devops_url, username, pat, project):
-        self.azure_devops_url = azure_devops_url
-        self.pat = pat
-        self.project = project
-        self.username = username
-        self.auth = HTTPBasicAuth(username, pat)
+        if not hasattr(self, 'initialized'):
+            self.azure_devops_url = azure_devops_url
+            self.pat = pat
+            self.project = project
+            self.username = username
+            self.auth = HTTPBasicAuth(username, pat)
+            self.initialized = True
+
+    @classmethod
+    def get_instance(cls, azure_devops_url=None, username=None, pat=None, project=None):
+        if not cls._instance:
+            cls._instance = cls(azure_devops_url, username, pat, project)
+        return cls._instance
 
     def fetch_tickets_via_rest(self, query):
         url = f"{self.azure_devops_url}/{self.project}/_apis/wit/wiql?api-version=6.0"

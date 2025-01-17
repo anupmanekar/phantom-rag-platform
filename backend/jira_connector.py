@@ -5,9 +5,24 @@ import base64
 from requests.auth import HTTPBasicAuth
 
 class JiraConnector:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(JiraConnector, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, jira_url, username, api_token):
-        self.jira_url = jira_url
-        self.auth = HTTPBasicAuth(username, api_token)
+        if not hasattr(self, 'initialized'):
+            self.jira_url = jira_url
+            self.auth = HTTPBasicAuth(username, api_token)
+            self.initialized = True
+
+    @classmethod
+    def get_instance(cls, jira_url=None, username=None, api_token=None):
+        if not cls._instance:
+            cls._instance = cls(jira_url, username, api_token)
+        return cls._instance
 
     def fetch_tickets(self, jql):
         url = f"{self.jira_url}/rest/api/2/search"
