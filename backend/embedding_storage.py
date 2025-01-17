@@ -1,10 +1,6 @@
 from pymongo import MongoClient
 from langchain_mongodb import MongoDBAtlasVectorSearch
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-from langchain_fireworks import FireworksEmbeddings, ChatFireworks
-import numpy as np
+from langchain_fireworks import FireworksEmbeddings
 import os
 
 class EmbeddingStorage:
@@ -29,7 +25,6 @@ class EmbeddingStorage:
                 index_name="vector_index",
                 text_key="ticket_title",
             )
-            self.model = ChatFireworks(model="accounts/fireworks/models/llama-v3p1-8b-instruct", max_tokens=None, temperature=0, api_key=os.environ.get("FIREWORKS_API_KEY"))
             self.initialized = True
 
     @classmethod
@@ -44,27 +39,3 @@ class EmbeddingStorage:
 
     def search_embeddings(self, query_embedding, threshold=0.8):
         return []
-    
-    def answer_query(self, query: str) -> str:
-        print(f"Answering query: {query}")
-        retriever = self.vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 5})
-        print("Retriever created")
-        docs = retriever.invoke(query)
-        print(f"Retrieved documents: {docs}")
-        print("Template creation in process")
-        messages = [
-            (
-                "system",
-                "You are a software QA tester who uses following pieces of context {context} to answer the question",
-            ),
-            ("human", "{question}"),
-        ]
-        prompt = ChatPromptTemplate.from_messages(messages=messages)
-        print("Prompt created")
-        parse_output = StrOutputParser()
-        model1 = ChatFireworks(model="accounts/fireworks/models/llama-v3p1-8b-instruct", max_tokens=None, temperature=0, api_key=os.environ.get("FIREWORKS_API_KEY"))
-        naive_rag_chain = prompt | model1 | parse_output
-        print("Chain created")
-        result = naive_rag_chain.invoke({"question": query, "output_language": "German", "context":docs})
-
-        return result

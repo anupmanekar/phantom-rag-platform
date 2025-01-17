@@ -6,6 +6,8 @@ import uvicorn
 from backend.jira_connector import JiraConnector
 from backend.azure_devops_connector import AzureDevOpsConnector
 from backend.embedding_storage import EmbeddingStorage
+from backend.llm_handler import LLMHandler
+from backend.rag_operations import RAGOperations
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
 
@@ -32,6 +34,10 @@ embedding_storage = EmbeddingStorage.get_instance(
             collection_name=os.environ.get("COLLECTION_NAME")
         )
 
+llm_handler = LLMHandler()
+
+rag_operations = RAGOperations(embedding_storage, llm_handler)
+
 class Query(BaseModel):
     query: str
 
@@ -43,8 +49,7 @@ class IngestRequest(BaseModel):
 @app.post("/search")
 async def search(query: Query):
     try:
-        # Placeholder for search functionality integration
-        results = embedding_storage.answer_query(query.query)
+        results = rag_operations.search(query.query)
         return {"results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -52,29 +57,16 @@ async def search(query: Query):
 @app.post("/ingest-jira")
 async def ingest_jira(request: IngestRequest):
     try:
-        jql = f"project = {request.ProjectKey} ORDER BY created DESC"
-        tickets = jira_connector.fetch_tickets(jql)[:request.MaxTickets]
-        embeddings = jira_connector.convert_to_embeddings(tickets)
-        
-        embedding_storage.store_embeddings(embeddings)
-        
-        return {"message": "Ingestion successful"}
+        response = rag_operations.ingest_jira(jira_connector, request.ProjectKey, request.MaxTickets)
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/ingest-azure")
 async def ingest_azure():
     try:
-        print("Ingesting Azure DevOps")
-        project = os.environ.get("AZURE_DEVOPS_PROJECT")
-        # query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.TeamProject] = '{request.ProjectKey}'"
-        query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.WorkItemType] = 'Task' and [System.TeamProject] = '{project}'"
-        #tickets = azure_connector.fetch_tickets(query)[:request.MaxTickets]
-        tickets = azure_connector.fetch_tickets(query)[:100]
-        embeddings = azure_connector.convert_to_embeddings(tickets)
-        embedding_storage.store_embeddings(embeddings)
-        
-        return {"message": "Ingestion successful"}
+        response = rag_operations.ingest_azure(azure_connector, os.environ.get("AZURE_DEVOPS_PROJECT"))
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
