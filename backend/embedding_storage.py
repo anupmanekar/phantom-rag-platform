@@ -1,4 +1,9 @@
 from pymongo import MongoClient
+from langchain_mongodb import MongoDBAtlasVectorSearch
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_fireworks import FireworksEmbeddings, ChatFireworks
 import numpy as np
 import os
 
@@ -8,6 +13,17 @@ class EmbeddingStorage:
         self.client = MongoClient(mongo_uri)
         self.db = self.client.get_database(db_name)
         self.collection = self.db.get_collection(collection_name)
+        self.embeddings = FireworksEmbeddings(model='nomic-ai/nomic-embed-text-v1.5')
+        self.vector_store = MongoDBAtlasVectorSearch.from_connection_string(
+            connection_string=mongo_uri,
+            namespace=db_name + "." + collection_name,
+            embedding=self.embeddings,
+            index_name="vector_index",
+            text_key="ticket_title",
+        )
+        
+        self.model = ChatFireworks(model="accounts/fireworks/models/llama-v3p1-8b-instruct", max_tokens=None, temperature=0, api_key=os.environ.get("FIREWORKS_API_KEY"))
+
 
     def store_embeddings(self, embeddings):
         self.collection.delete_many({})
@@ -26,3 +42,36 @@ class EmbeddingStorage:
 
         # results = sorted(results, key=lambda x: x["similarity"], reverse=True)[:5]
         return []
+    
+    def answer_query(self, query: str) -> str:
+        print(f"Answering query: {query}")
+        retriever = self.vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 5})
+        print("Retriever created")
+        # Generate context using the retriever, and pass the user question through
+        # splits = query.split(":")
+        # title = splits[0]
+        # query = splits[1]
+        docs = retriever.invoke(query)
+        print(f"Retrieved documents: {docs}")
+        print("Template creation in process")
+        messages = [
+            (
+                "system",
+                "You are a software QA tester who uses following pieces of context {context} to answer the question",
+            ),
+            ("human", "{question}"),
+        ]
+        # Defining the chat prompt
+        prompt = ChatPromptTemplate.from_messages(messages=messages)
+        print("Prompt created")
+        # Parse output as a string
+        parse_output = StrOutputParser()
+        model1 = ChatFireworks(model="accounts/fireworks/models/llama-v3p1-8b-instruct", max_tokens=None, temperature=0, api_key=os.environ.get("FIREWORKS_API_KEY"))
+        # Naive RAG chain
+        naive_rag_chain = prompt | model1 | parse_output
+        print("Chain created")
+        # Run the chain
+        result = naive_rag_chain.invoke({"question": query, "output_language": "German", "context":docs})
+
+        return result
+    
