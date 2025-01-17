@@ -56,12 +56,13 @@ class AzureDevOpsConnector:
         for ticket in tickets:
             ticket_dict = ticket.as_dict()
             description = ticket_dict['fields']['System.Description'] if 'System.Description' in ticket_dict['fields'] else ''
-            ticket_data = f"{ticket_dict['fields']['System.Title']} {description}"
+            ticket_data = f"{ticket_dict['fields']['System.Title']}"
             embedding = embeddings.embed_documents(ticket_data)
             ticket_embeddings.append({
                 "ticket_id": ticket.id,
                 "ticket_title": ticket_dict['fields']['System.Title'],
-                "embedding": embedding[0]
+                "embedding": embedding[0],
+                "description": description
             })
             print(f"Ticket {ticket.id} processed")
         return ticket_embeddings
