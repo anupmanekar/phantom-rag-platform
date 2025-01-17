@@ -1,5 +1,7 @@
 from backend.llm_handler import LLMHandler
 from backend.embedding_storage import EmbeddingStorage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 
 class RAGHandler:
     def __init__(self, llm_handler: LLMHandler, embedding_storage: EmbeddingStorage):
