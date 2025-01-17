@@ -6,6 +6,8 @@ import uvicorn
 from backend.jira_connector import JiraConnector
 from backend.azure_devops_connector import AzureDevOpsConnector
 from backend.embedding_storage import EmbeddingStorage
+from backend.llm_handler import LLMHandler
+from backend.rag_handler import RAGHandler
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
 
@@ -32,6 +34,9 @@ embedding_storage = EmbeddingStorage.get_instance(
             collection_name=os.environ.get("COLLECTION_NAME")
         )
 
+llm_handler = LLMHandler()
+rag_handler = RAGHandler(llm_handler, embedding_storage)
+
 class Query(BaseModel):
     query: str
 
@@ -43,8 +48,7 @@ class IngestRequest(BaseModel):
 @app.post("/search")
 async def search(query: Query):
     try:
-        # Placeholder for search functionality integration
-        results = embedding_storage.answer_query(query.query)
+        results = rag_handler.answer_query(query.query)
         return {"results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
