@@ -13,21 +13,20 @@ load_dotenv()
 
 app = FastAPI()
 
-# TODO: Replace below block by singleton pattern
-azure_connector = AzureDevOpsConnector(
+azure_connector = AzureDevOpsConnector.get_instance(
             azure_devops_url=os.environ.get("AZURE_DEVOPS_URL"),
             pat=os.environ.get("AZURE_DEVOPS_PAT"),
             project=os.environ.get("AZURE_DEVOPS_PROJECT"),
             username=os.environ.get("AZURE_DEVOPS_USERNAME")
         )
 
-jira_connector = JiraConnector(
+jira_connector = JiraConnector.get_instance(
             jira_url=os.getenv("JIRA_URL"),
             username=os.getenv("JIRA_USERNAME"),
             api_token=os.getenv("JIRA_API_TOKEN")
         )
 
-embedding_storage = EmbeddingStorage(
+embedding_storage = EmbeddingStorage.get_instance(
             mongo_uri=os.environ.get("MONGO_URI"),
             db_name=os.environ.get("DB_NAME"),
             collection_name=os.environ.get("COLLECTION_NAME")
