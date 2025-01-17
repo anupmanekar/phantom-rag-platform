@@ -32,17 +32,3 @@ class RAGOperations:
         result = naive_rag_chain.invoke({"question": query, "output_language": "German", "context":docs})
 
         return result
-
-    def ingest_jira(self, jira_connector, project_key: str, max_tickets: int):
-        jql = f"project = {project_key} ORDER BY created DESC"
-        tickets = jira_connector.fetch_tickets(jql)[:max_tickets]
-        embeddings = jira_connector.convert_to_embeddings(tickets)
-        self.embedding_storage.store_embeddings(embeddings)
-        return {"message": "Ingestion successful"}
-
-    def ingest_azure(self, azure_connector, project: str):
-        query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.WorkItemType] = 'Task' and [System.TeamProject] = '{project}'"
-        tickets = azure_connector.fetch_tickets(query)[:100]
-        embeddings = azure_connector.convert_to_embeddings(tickets)
-        self.embedding_storage.store_embeddings(embeddings)
-        return {"message": "Ingestion successful"}
