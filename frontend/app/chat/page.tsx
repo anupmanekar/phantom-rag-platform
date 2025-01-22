@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import ChatIcon from "@/app/components/ChatIcon";
 import ChatWindow from "@/app/components/ChatWindow";

@@ -19,7 +19,7 @@ export default function Chat() {
   };
 
   return (
-    <div className="chat-container">
+    <div>
       <div className="messages">
         {messages.map((message, index) => (
           <div
@@ -30,14 +30,17 @@ export default function Chat() {
           </div>
         ))}
       </div>
-      <div className="input-container">
+      <div>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
         />
-        <button onClick={handleSendMessage}>Send</button>
+        <div>
+         <button onClick={handleSendMessage}>Send</button>
+        </div>
+        
       </div>
     </div>
   );
