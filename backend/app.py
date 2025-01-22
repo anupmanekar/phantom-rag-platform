@@ -10,6 +10,9 @@ from backend.llm_handler import LLMHandler
 from backend.rag_handler import RAGHandler
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
+from monitoring.observability import getLogger
+
+logger = getLogger(__name__)
 
 load_dotenv()
 

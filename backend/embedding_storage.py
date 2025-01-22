@@ -3,6 +3,9 @@ from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_fireworks import FireworksEmbeddings
 import numpy as np
 import os
+from monitoring.observability import getLogger
+
+logger = getLogger(__name__)
 
 class EmbeddingStorage:
     _instance = None
@@ -14,7 +17,7 @@ class EmbeddingStorage:
 
     def __init__(self, mongo_uri, db_name, collection_name):
         if not hasattr(self, 'initialized'):
-            print(f"Connecting to MongoDB at {mongo_uri}")
+            logger.info(f"Connecting to MongoDB at {mongo_uri}")
             self.client = MongoClient(mongo_uri)
             self.db = self.client.get_database(db_name)
             self.collection = self.db.get_collection(collection_name)
