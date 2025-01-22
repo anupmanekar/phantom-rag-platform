@@ -1,6 +1,19 @@
 import Image from "next/image";
+import { useState } from "react";
+import ChatIcon from "./components/ChatIcon";
+import ChatWindow from "./components/ChatWindow";
 
 export default function Home() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const handleChatIconClick = () => {
+    setIsChatOpen(true);
+  };
+
+  const handleChatWindowClose = () => {
+    setIsChatOpen(false);
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -96,6 +109,8 @@ export default function Home() {
           Go to nextjs.org →
         </a>
       </footer>
+      <ChatIcon onClick={handleChatIconClick} />
+      {isChatOpen && <ChatWindow onClose={handleChatWindowClose} />}
     </div>
   );
 }
