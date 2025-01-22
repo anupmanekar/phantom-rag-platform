@@ -1,17 +1,17 @@
 import logging
-from langsmith import Langsmith
-from prometheus_client import start_http_server, Summary, Counter
-
-# Initialize Langsmith for monitoring and observability
-langsmith = Langsmith(api_key="your_langsmith_api_key")
+#from prometheus_client import start_http_server, Summary, Counter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Set up Prometheus metrics
-REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
-REQUEST_COUNT = Counter('request_count', 'Total number of requests')
+# REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+# REQUEST_COUNT = Counter('request_count', 'Total number of requests')
+
+def getLogger(name):
+    logger = logging.getLogger(name)
+    return logger
 
 def log_request(request):
     logger.info(f"Received request: {request}")
@@ -36,10 +36,10 @@ def monitor_request(func):
     return wrapper
 
 # Start Prometheus server
-start_http_server(8001)
+# start_http_server(8001)
 
 # Example usage of Langsmith for monitoring
-def example_function():
-    langsmith.track_event("example_event", {"key": "value"})
+# def example_function():
+#    langsmith.track_event("example_event", {"key": "value"})
 
-example_function()
+# example_function()

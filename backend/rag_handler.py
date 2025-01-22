@@ -2,6 +2,9 @@ from backend.llm_handler import LLMHandler
 from backend.embedding_storage import EmbeddingStorage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from monitoring.observability import getLogger
+
+logger = getLogger(__name__)
 
 class RAGHandler:
     def __init__(self, llm_handler: LLMHandler, embedding_storage: EmbeddingStorage):
@@ -9,12 +12,12 @@ class RAGHandler:
         self.embedding_storage = embedding_storage
 
     def answer_query(self, query: str) -> str:
-        print(f"Answering query: {query}")
+        logger.info(f"Answering query: {query}")
         retriever = self.embedding_storage.vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 5})
-        print("Retriever created")
+        logger.info("Retriever created")
         docs = retriever.invoke(query)
-        print(f"Retrieved documents: {docs}")
-        print("Template creation in process")
+        logger.info(f"Retrieved documents: {docs}")
+        logger.info("Template creation in process")
         messages = [
             (
                 "system",
@@ -23,10 +26,10 @@ class RAGHandler:
             ("human", "{question}"),
         ]
         prompt = ChatPromptTemplate.from_messages(messages=messages)
-        print("Prompt created")
+        logger.info("Prompt created")
         parse_output = StrOutputParser()
         naive_rag_chain = prompt | self.llm_handler.model | parse_output
-        print("Chain created")
-        result = naive_rag_chain.invoke({"question": query, "output_language": "German", "context": docs})
+        logger.info("Chain created")
+        result = naive_rag_chain.invoke({"question": query, "context": docs})
 
         return result
