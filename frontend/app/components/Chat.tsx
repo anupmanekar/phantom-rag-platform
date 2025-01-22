@@ -1,25 +1,18 @@
 "use client";
 import { useState } from "react";
+import { sendMessage } from "../../api/chat";
 
 export default function Chat() {
   const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
   const [input, setInput] = useState("");
 
-  const sendMessage = async () => {
+  const handleSendMessage = async () => {
     if (input.trim() === "") return;
 
     const newMessage = { text: input, sender: "user" };
     setMessages([...messages, newMessage]);
 
-    const response = await fetch("http://127.0.0.1:8000/answer-query", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: input }),
-    });
-
-    const data = await response.json();
+    const data = await sendMessage(input);
     const botMessage = { text: data.results, sender: "bot" };
     setMessages((prevMessages) => [...prevMessages, botMessage]);
     setInput("");
@@ -44,7 +37,7 @@ export default function Chat() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={handleSendMessage}>Send</button>
       </div>
     </div>
   );
