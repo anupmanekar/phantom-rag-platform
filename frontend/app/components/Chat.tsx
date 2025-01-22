@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { sendMessage } from "../../api/chat";
+import { sendMessage } from "@/app/api/llm-apis";
 
 export default function Chat() {
   const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
