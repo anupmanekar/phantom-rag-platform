@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Chat from "./components/Chat";
 
 export default function Home() {
   return (
@@ -49,7 +48,6 @@ export default function Home() {
             Read our docs
           </a>
         </div>
-        <Chat />
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
