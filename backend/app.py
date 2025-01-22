@@ -11,12 +11,21 @@ from backend.rag_handler import RAGHandler
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
 from monitoring.observability import getLogger
+from fastapi.middleware.cors import CORSMiddleware
 
 logger = getLogger(__name__)
 
 load_dotenv()
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 azure_connector = AzureDevOpsConnector.get_instance(
             azure_devops_url=os.environ.get("AZURE_DEVOPS_URL"),
@@ -48,7 +57,7 @@ class IngestRequest(BaseModel):
     MaxTickets: int
     IngestionType: str
 
-@app.post("/search")
+@app.post("/answer-query")
 async def search(query: Query):
     try:
         results = rag_handler.answer_query(query.query)
