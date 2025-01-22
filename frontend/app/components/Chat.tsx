@@ -1,7 +1,8 @@
+"use client";
 import { useState } from "react";
 
 export default function Chat() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
   const [input, setInput] = useState("");
 
   const sendMessage = async () => {
@@ -10,7 +11,7 @@ export default function Chat() {
     const newMessage = { text: input, sender: "user" };
     setMessages([...messages, newMessage]);
 
-    const response = await fetch("/api/answer-query", {
+    const response = await fetch("http://127.0.0.1:8000/answer-query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

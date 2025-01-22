@@ -57,7 +57,7 @@ class IngestRequest(BaseModel):
     MaxTickets: int
     IngestionType: str
 
-@app.post("/search")
+@app.post("/answer-query")
 async def search(query: Query):
     try:
         results = rag_handler.answer_query(query.query)
