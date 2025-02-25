@@ -1,5 +1,5 @@
-from backend.llm_handler import LLMHandler
-from backend.embedding_storage import EmbeddingStorage
+from llm_handler import LLMHandler
+from embedding_storage import EmbeddingStorage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from monitoring.observability import getLogger
