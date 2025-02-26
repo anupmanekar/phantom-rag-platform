@@ -18,7 +18,7 @@ class EmbeddingStorage:
     def __init__(self, mongo_uri, db_name, collection_name):
         if not hasattr(self, 'initialized'):
             logger.info(f"Connecting to MongoDB at {mongo_uri}")
-            self.client = MongoClient(mongo_uri)
+            self.client = MongoClient(mongo_uri, tlsAllowInvalidCertificates=True)
             self.db = self.client.get_database(db_name)
             self.collection = self.db.get_collection(collection_name)
             self.embeddings = FireworksEmbeddings(model='nomic-ai/nomic-embed-text-v1.5')
