@@ -43,3 +43,9 @@ class EmbeddingStorage:
 
     def search_embeddings(self, query_embedding, threshold=0.8):
         return []
+    
+    def get_document(self, criteria):
+        logger.info(f"Getting document with criteria: {criteria}")
+        doc = self.collection.find_one(criteria)
+        logger.info(f"Document retrieved: {doc}")
+        return doc

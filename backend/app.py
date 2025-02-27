@@ -48,15 +48,23 @@ class IngestRequest(BaseModel):
     MaxTickets: int
     IngestionType: str
 
-@app.get("/generate-bdd")
-async def generate_bdd(task_id: str):
+@app.get("/generate-bdd-for-ticket")
+async def generate_bdd(ticket_id: int):
     try:
-        results = rag_handler.generate_bdd(task_id=task_id)
+        results = rag_handler.generate_bdd_for_ticket(ticket_id)
         return {"results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/search")
+@app.get("/generate-bdd-for-features")
+async def generate_bdd(description: str):
+    try:
+        results = rag_handler.generate_bdd_for_features(features=description)
+        return {"results": results}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/answer-query")
 async def search(query: Query):
     try:
         results = rag_handler.answer_query(query.query)
