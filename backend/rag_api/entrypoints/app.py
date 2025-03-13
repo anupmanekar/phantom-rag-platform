@@ -3,14 +3,14 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 import uvicorn
-from jira_connector import JiraConnector
-from azure_devops_connector import AzureDevOpsConnector
-from embedding_storage import EmbeddingStorage
-from llm_handler import LLMHandler
-from rag_handler import RAGHandler
+from backend.rag_api.infrastructure.jira_adapter import JiraAdapter
+from backend.rag_api.infrastructure.azure_devops_adapter import AzureDevopsAdapter
+from backend.rag_api.infrastructure.embedding_storage import EmbeddingStorage
+from backend.rag_api.infrastructure.llm_handler import LLMHandler
+from backend.rag_api.usecases.rag_handler import RAGHandler
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
-from monitoring.observability import getLogger
+from backend.rag_api.infrastructure.monitoring.observability import getLogger
 
 logger = getLogger(__name__)
 
@@ -18,14 +18,14 @@ load_dotenv()
 
 app = FastAPI()
 
-azure_connector = AzureDevOpsConnector.get_instance(
+azure_connector = AzureDevopsAdapter.get_instance(
             azure_devops_url=os.environ.get("AZURE_DEVOPS_URL"),
             pat=os.environ.get("AZURE_DEVOPS_PAT"),
             project=os.environ.get("AZURE_DEVOPS_PROJECT"),
             username=os.environ.get("AZURE_DEVOPS_USERNAME")
         )
 
-jira_connector = JiraConnector.get_instance(
+jira_connector = JiraAdapter.get_instance(
             jira_url=os.getenv("JIRA_URL"),
             username=os.getenv("JIRA_USERNAME"),
             api_token=os.getenv("JIRA_API_TOKEN")

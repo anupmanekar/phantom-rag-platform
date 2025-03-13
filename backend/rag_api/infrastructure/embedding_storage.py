@@ -7,7 +7,17 @@ from monitoring.observability import getLogger
 
 logger = getLogger(__name__)
 
-class EmbeddingStorage:
+class EmbeddingStoragePort:
+    def store_embeddings(self, embeddings):
+        raise NotImplementedError
+
+    def search_embeddings(self, query_embedding, threshold=0.8):
+        raise NotImplementedError
+
+    def get_document(self, criteria):
+        raise NotImplementedError
+
+class EmbeddingStorage(EmbeddingStoragePort):
     _instance = None
 
     def __new__(cls, *args, **kwargs):
