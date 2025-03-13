@@ -3,10 +3,10 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 import uvicorn
-from backend.rag_api.infrastructure.jira_adapter import JiraAdapter
-from backend.rag_api.infrastructure.azure_devops_adapter import AzureDevopsAdapter
-from backend.rag_api.infrastructure.embedding_storage import EmbeddingStorage
-from backend.rag_api.infrastructure.llm_handler import LLMHandler
+from backend.rag_api.infrastructure.adapters.jira_adapter import JiraAdapter
+from backend.rag_api.infrastructure.adapters.azure_devops_adapter import AzureDevopsAdapter
+from backend.rag_api.infrastructure.adapters.embedding_storage import EmbeddingStorage
+from backend.rag_api.infrastructure.adapters.llm_handler import LLMHandler
 from backend.rag_api.usecases.rag_handler import RAGHandler
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
