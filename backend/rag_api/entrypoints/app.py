@@ -6,7 +6,7 @@ import uvicorn
 from backend.rag_api.infrastructure.adapters.jira_adapter import JiraAdapter
 from backend.rag_api.infrastructure.adapters.azure_devops_adapter import AzureDevopsAdapter
 from backend.rag_api.infrastructure.adapters.embedding_storage import EmbeddingStorage
-from backend.rag_api.infrastructure.adapters.llm_handler import LLMHandler
+from backend.rag_api.infrastructure.adapters.fireworks_llm_adapter import FireworksLLMAdapter
 from backend.rag_api.usecases.rag_handler import RAGHandler
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
@@ -37,7 +37,7 @@ embedding_storage = EmbeddingStorage.get_instance(
             collection_name=os.environ.get("COLLECTION_NAME")
         )
 
-llm_handler = LLMHandler()
+llm_handler = FireworksLLMAdapter()
 rag_handler = RAGHandler(llm_handler, embedding_storage)
 
 class Query(BaseModel):
