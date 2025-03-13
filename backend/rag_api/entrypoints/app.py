@@ -5,7 +5,7 @@ from typing import List
 import uvicorn
 from backend.rag_api.infrastructure.adapters.jira_adapter import JiraAdapter
 from backend.rag_api.infrastructure.adapters.azure_devops_adapter import AzureDevopsAdapter
-from backend.rag_api.infrastructure.adapters.embedding_storage import EmbeddingStorage
+from backend.rag_api.infrastructure.adapters.mongo_embedding_storage import MongoEmbeddingStorage
 from backend.rag_api.infrastructure.adapters.fireworks_llm_adapter import FireworksLLMAdapter
 from backend.rag_api.usecases.rag_handler import RAGHandler
 from dotenv import load_dotenv
@@ -31,7 +31,7 @@ jira_connector = JiraAdapter.get_instance(
             api_token=os.getenv("JIRA_API_TOKEN")
         )
 
-embedding_storage = EmbeddingStorage.get_instance(
+embedding_storage = MongoEmbeddingStorage.get_instance(
             mongo_uri=os.environ.get("MONGO_URI"),
             db_name=os.environ.get("DB_NAME"),
             collection_name=os.environ.get("COLLECTION_NAME")

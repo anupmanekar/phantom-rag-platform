@@ -4,25 +4,16 @@ from langchain_fireworks import FireworksEmbeddings
 import numpy as np
 import os
 from monitoring.observability import getLogger
+from backend.rag_api.infrastructure.ports.embedding_storage_port import EmbeddingStoragePort
 
 logger = getLogger(__name__)
 
-class EmbeddingStoragePort:
-    def store_embeddings(self, embeddings):
-        raise NotImplementedError
-
-    def search_embeddings(self, query_embedding, threshold=0.8):
-        raise NotImplementedError
-
-    def get_document(self, criteria):
-        raise NotImplementedError
-
-class EmbeddingStorage(EmbeddingStoragePort):
+class MongoEmbeddingStorage(EmbeddingStoragePort):
     _instance = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(EmbeddingStorage, cls).__new__(cls)
+            cls._instance = super(MongoEmbeddingStorage, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, mongo_uri, db_name, collection_name):
