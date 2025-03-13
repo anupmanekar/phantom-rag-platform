@@ -3,14 +3,16 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 import uvicorn
-from jira_connector import JiraConnector
-from azure_devops_connector import AzureDevOpsConnector
-from embedding_storage import EmbeddingStorage
-from llm_handler import LLMHandler
-from rag_handler import RAGHandler
+from backend.jira_adapter import JiraAdapter
+from backend.azure_devops_adapter import AzureDevOpsAdapter
+from backend.embedding_storage import EmbeddingStorage
+from backend.llm_handler import LLMHandler
+from backend.rag_handler import RAGHandler
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
-from monitoring.observability import getLogger
+from backend.monitoring.observability import getLogger
+from backend.commands.azure_devops_commands import FetchTicketsCommand as AzureFetchTicketsCommand, ConvertToEmbeddingsCommand as AzureConvertToEmbeddingsCommand
+from backend.commands.jira_commands import FetchTicketsCommand as JiraFetchTicketsCommand, ConvertToEmbeddingsCommand as JiraConvertToEmbeddingsCommand
 
 logger = getLogger(__name__)
 
@@ -18,14 +20,14 @@ load_dotenv()
 
 app = FastAPI()
 
-azure_connector = AzureDevOpsConnector.get_instance(
+azure_adapter = AzureDevOpsAdapter.get_instance(
             azure_devops_url=os.environ.get("AZURE_DEVOPS_URL"),
             pat=os.environ.get("AZURE_DEVOPS_PAT"),
             project=os.environ.get("AZURE_DEVOPS_PROJECT"),
             username=os.environ.get("AZURE_DEVOPS_USERNAME")
         )
 
-jira_connector = JiraConnector.get_instance(
+jira_adapter = JiraAdapter.get_instance(
             jira_url=os.getenv("JIRA_URL"),
             username=os.getenv("JIRA_USERNAME"),
             api_token=os.getenv("JIRA_API_TOKEN")
@@ -76,8 +78,10 @@ async def search(query: Query):
 async def ingest_jira(request: IngestRequest):
     try:
         jql = f"project = {request.ProjectKey} ORDER BY created DESC"
-        tickets = jira_connector.fetch_tickets(jql)[:request.MaxTickets]
-        embeddings = jira_connector.convert_to_embeddings(tickets)
+        fetch_tickets_command = JiraFetchTicketsCommand(jira_adapter, jql)
+        tickets = fetch_tickets_command.execute()[:request.MaxTickets]
+        convert_to_embeddings_command = JiraConvertToEmbeddingsCommand(jira_adapter, tickets)
+        embeddings = convert_to_embeddings_command.execute()
         
         embedding_storage.store_embeddings(embeddings)
         
@@ -90,11 +94,11 @@ async def ingest_azure():
     try:
         print("Ingesting Azure DevOps")
         project = os.environ.get("AZURE_DEVOPS_PROJECT")
-        # query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.TeamProject] = '{request.ProjectKey}'"
         query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.WorkItemType] = 'Task' and [System.TeamProject] = '{project}'"
-        #tickets = azure_connector.fetch_tickets(query)[:request.MaxTickets]
-        tickets = azure_connector.fetch_tickets(query)[:100]
-        embeddings = azure_connector.convert_to_embeddings(tickets)
+        fetch_tickets_command = AzureFetchTicketsCommand(azure_adapter, query)
+        tickets = fetch_tickets_command.execute()[:100]
+        convert_to_embeddings_command = AzureConvertToEmbeddingsCommand(azure_adapter, tickets)
+        embeddings = convert_to_embeddings_command.execute()
         embedding_storage.store_embeddings(embeddings)
         
         return {"message": "Ingestion successful"}

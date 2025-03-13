@@ -3,13 +3,15 @@ from langchain_fireworks import FireworksEmbeddings
 import os
 import base64
 from requests.auth import HTTPBasicAuth
+from backend.commands.command_interface import CommandInterface
+from backend.commands.jira_commands import FetchTicketsCommand, ConvertToEmbeddingsCommand
 
-class JiraConnector:
+class JiraAdapter:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(JiraConnector, cls).__new__(cls)
+            cls._instance = super(JiraAdapter, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, jira_url, username, api_token):
@@ -25,6 +27,14 @@ class JiraConnector:
         return cls._instance
 
     def fetch_tickets(self, jql):
+        fetch_tickets_command = FetchTicketsCommand(self, jql)
+        return fetch_tickets_command.execute()
+
+    def convert_to_embeddings(self, tickets):
+        convert_to_embeddings_command = ConvertToEmbeddingsCommand(self, tickets)
+        return convert_to_embeddings_command.execute()
+
+    def _fetch_tickets(self, jql):
         url = f"{self.jira_url}/rest/api/2/search"
         headers = {
             "Content-Type": "application/json",
@@ -37,7 +47,7 @@ class JiraConnector:
         response.raise_for_status()
         return response.json()["issues"]
 
-    def convert_to_embeddings(self, tickets):
+    def _convert_to_embeddings(self, tickets):
         embeddings = FireworksEmbeddings()
         ticket_embeddings = []
         for ticket in tickets:

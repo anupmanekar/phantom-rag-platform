@@ -6,12 +6,12 @@ from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from azure.devops.v7_1.work_item_tracking.models import Wiql, WorkItem
 
-class AzureDevOpsConnector:
+class AzureDevOpsAdapter:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(AzureDevOpsConnector, cls).__new__(cls)
+            cls._instance = super(AzureDevOpsAdapter, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, azure_devops_url, username, pat, project):
