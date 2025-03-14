@@ -3,16 +3,18 @@ from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_fireworks import FireworksEmbeddings
 import numpy as np
 import os
-from monitoring.observability import getLogger
+from kink import inject
+from rag_api.infrastructure.monitoring.observability import getLogger
+from rag_api.infrastructure.ports import VectorDBPort
 
 logger = getLogger(__name__)
 
-class EmbeddingStorage:
+class MongoVectorDBAdapter(VectorDBPort):
     _instance = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(EmbeddingStorage, cls).__new__(cls)
+            cls._instance = super(MongoVectorDBAdapter, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, mongo_uri, db_name, collection_name):

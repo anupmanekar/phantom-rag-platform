@@ -3,13 +3,14 @@ from langchain_fireworks import FireworksEmbeddings
 import os
 import base64
 from requests.auth import HTTPBasicAuth
+from rag_api.infrastructure.ports import RequirementsStorePort
 
-class JiraConnector:
+class JiraAdapter(RequirementsStorePort):
     _instance = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(JiraConnector, cls).__new__(cls)
+            cls._instance = super(JiraAdapter, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, jira_url, username, api_token):

@@ -10,3 +10,4 @@ requests
 azure-core
 azure-devops
 msrest
+kink

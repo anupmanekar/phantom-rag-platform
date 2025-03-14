@@ -1,13 +1,12 @@
-from llm_handler import LLMHandler
-from embedding_storage import EmbeddingStorage
+from rag_api.infrastructure.ports import LLMPort, VectorDBPort
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from monitoring.observability import getLogger
+from rag_api.infrastructure.monitoring.observability import getLogger
 
 logger = getLogger(__name__)
 
 class RAGHandler:
-    def __init__(self, llm_handler: LLMHandler, embedding_storage: EmbeddingStorage):
+    def __init__(self, llm_handler: LLMPort, embedding_storage: VectorDBPort):
         self.llm_handler = llm_handler
         self.embedding_storage = embedding_storage
 
