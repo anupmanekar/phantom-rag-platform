@@ -17,4 +17,4 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Set the entrypoint to run the FastAPI application using uvicorn
-ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uvicorn", "rag_api.entrypoints.app:app", "--host", "0.0.0.0", "--port", "8000"]

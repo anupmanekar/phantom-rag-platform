@@ -2,10 +2,11 @@ import requests
 from requests.auth import HTTPBasicAuth
 from langchain_fireworks import FireworksEmbeddings
 import os
+from kink import inject
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from azure.devops.v7_1.work_item_tracking.models import Wiql, WorkItem
-from backend.rag_api.infrastructure.ports.requirements_store_port import RequirementsStorePort
+from rag_api.infrastructure.ports import RequirementsStorePort
 
 class AzureDevopsAdapter(RequirementsStorePort):
     _instance = None
@@ -14,7 +15,7 @@ class AzureDevopsAdapter(RequirementsStorePort):
         if not cls._instance:
             cls._instance = super(AzureDevopsAdapter, cls).__new__(cls)
         return cls._instance
-
+    
     def __init__(self, azure_devops_url, username, pat, project):
         if not hasattr(self, 'initialized'):
             self.azure_devops_url = azure_devops_url

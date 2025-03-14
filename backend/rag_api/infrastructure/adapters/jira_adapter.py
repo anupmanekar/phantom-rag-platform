@@ -3,7 +3,7 @@ from langchain_fireworks import FireworksEmbeddings
 import os
 import base64
 from requests.auth import HTTPBasicAuth
-from backend.rag_api.infrastructure.ports.requirements_store_port import RequirementsStorePort
+from rag_api.infrastructure.ports import RequirementsStorePort
 
 class JiraAdapter(RequirementsStorePort):
     _instance = None

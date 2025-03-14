@@ -1,8 +1,9 @@
 import os
+from kink import inject
 from langchain_fireworks import ChatFireworks
 from pydantic import SecretStr
 from dotenv import load_dotenv
-from backend.rag_api.interfaces.ports.llm_port import LLMPort
+from rag_api.infrastructure.ports import LLMPort
 
 load_dotenv()
 
