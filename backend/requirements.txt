@@ -11,3 +11,12 @@ azure-core
 azure-devops
 msrest
 kink
+mlflow
+langchain-community
+beautifulsoup4
+chromadb
+tiktoken
+evaluate
+transformers
+textstat
+ragas
