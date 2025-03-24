@@ -1,4 +1,5 @@
 import requests
+from datetime import date, datetime, time, timedelta
 from requests.auth import HTTPBasicAuth
 from langchain_fireworks import FireworksEmbeddings
 import os
@@ -6,7 +7,10 @@ from kink import inject
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from azure.devops.v7_1.work_item_tracking.models import Wiql, WorkItem
+from rag_api.domain.user_requirement import UserRequirement
+from azure.devops.v7_1.work_item_tracking.work_item_tracking_client import WorkItemTrackingClient
 from rag_api.infrastructure.ports import RequirementsStorePort
+import re
 
 class AzureDevopsAdapter(RequirementsStorePort):
     _instance = None
@@ -66,7 +70,6 @@ class AzureDevopsAdapter(RequirementsStorePort):
             return [item for item in work_items]
         return []
 
-
     def convert_to_embeddings(self, tickets: list[WorkItem]):
         embeddings = FireworksEmbeddings(model='nomic-ai/nomic-embed-text-v1.5')
         ticket_embeddings = []
@@ -83,3 +86,34 @@ class AzureDevopsAdapter(RequirementsStorePort):
             })
             print(f"Ticket {ticket.id} processed")
         return ticket_embeddings
+
+    def convert_tickets_to_user_requirements(self, tickets: list[WorkItem]) -> list[UserRequirement]:
+        user_requirements = []
+        for ticket in tickets:
+            ticket_dict = ticket.as_dict()
+            description = ticket_dict['fields']['System.Description'] if 'System.Description' in ticket_dict['fields'] else ''
+            image_tags = re.findall(r'<img src="([^"]+)"', description)
+            images = []
+            for tag in image_tags:
+                images.append(tag)
+            user_requirements.append(UserRequirement(
+                ticket_id=str(ticket_dict['id']),
+                title=ticket_dict['fields']['System.Title'],
+                description=description,
+                images=images,
+                embedding_field=[],
+                additional_description=None,
+                ingested_at=datetime.now(),
+                embedded_at=None,
+                embedding_job_id=None,
+                ingestion_job_id=None
+            ))
+        return user_requirements
+    
+    def download_attachment(self, url):
+        """Download attachment from Azure DevOps"""
+        response = requests.get(url, auth=('', self.pat))
+        if response.status_code == 200:
+            return response.content
+        else:
+            raise Exception(f"Failed to download attachment: {response.status_code}")

@@ -1,3 +1,6 @@
 *.env
 *.pyc
 .venv
+mlruns
+mlartifacts
+firestore-genai-experiments.json

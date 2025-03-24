@@ -11,3 +11,9 @@ azure-core
 azure-devops
 msrest
 kink
+google-cloud-firestore
+langchain-google-firestore
+langchain-google-vertexai
+functions-framework
+google-events
+google-genai

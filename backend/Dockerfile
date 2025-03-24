@@ -12,9 +12,10 @@ COPY .env /app/.env
 
 # Copy the requirements.txt file into the Docker image
 COPY requirements.txt /app/requirements.txt
+COPY firestore-genai-experiments.json /app/firestore-genai-experiments.json
 
 # Install the required dependencies
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Set the entrypoint to run the FastAPI application using uvicorn
-ENTRYPOINT ["uvicorn", "rag_api.entrypoints.app:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uvicorn", "rag_api.entrypoints.app:app", "--host", "0.0.0.0", "--port", "8080"]

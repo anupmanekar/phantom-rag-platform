@@ -57,12 +57,38 @@ class RAGHandler:
 
         return result
     
-    def generate_bdd_for_ticket(self, ticket_id: int) -> str:
+    # def generate_bdd_for_ticket(self, ticket_id: int) -> str:
+    #     logger.info(f"Generating BDD for Features: {ticket_id}")
+    #     task_record = self.embedding_storage.get_document({"ticket_id": ticket_id})
+    #     retriever = self.embedding_storage.vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 1})
+    #     logger.info("Retriever created")
+    #     query = f"Get documents for functionality: {task_record['description']}"
+    #     docs = retriever.invoke(query)
+    #     logger.info(f"Retrieved documents: {docs}")
+    #     logger.info("Template creation in process")
+    #     messages = [
+    #         (
+    #             "system",
+    #             "You are a software QA tester who uses following pieces of context {context} to answer the question",
+    #         ),
+    #         ("human", "{question}"),
+    #     ]
+    #     prompt = ChatPromptTemplate.from_messages(messages=messages)
+    #     logger.info("Prompt created")
+    #     parse_output = StrOutputParser()
+    #     naive_rag_chain = prompt | self.llm_handler.model | parse_output
+    #     logger.info("Chain created")
+    #     result = naive_rag_chain.invoke({"question": "Generate the BDD for the requirement", "context": docs})
+
+    #     return result
+
+    def generate_bdd_for_ticket_from_firestore(self, ticket_id: int) -> str:
         logger.info(f"Generating BDD for Features: {ticket_id}")
-        task_record = self.embedding_storage.get_document({"ticket_id": ticket_id})
+        document = self.embedding_storage.get_document({"ticket_id": ticket_id})
+        task_record = document.to_dict()
         retriever = self.embedding_storage.vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 1})
         logger.info("Retriever created")
-        query = f"Get documents for functionality: {task_record['description']}"
+        query = f"Get documents for functionality as described in : {task_record['description']}. Further, also consider the following: {task_record['additional_description']}"
         docs = retriever.invoke(query)
         logger.info(f"Retrieved documents: {docs}")
         logger.info("Template creation in process")
@@ -81,4 +107,3 @@ class RAGHandler:
         result = naive_rag_chain.invoke({"question": "Generate the BDD for the requirement", "context": docs})
 
         return result
-

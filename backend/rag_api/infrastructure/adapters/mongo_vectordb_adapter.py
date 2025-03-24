@@ -39,7 +39,7 @@ class MongoVectorDBAdapter(VectorDBPort):
             cls._instance = cls(mongo_uri, db_name, collection_name)
         return cls._instance
 
-    def store_embeddings(self, embeddings):
+    def store_documents(self, embeddings):
         self.collection.delete_many({})
         self.collection.insert_many(embeddings)
 
@@ -51,3 +51,9 @@ class MongoVectorDBAdapter(VectorDBPort):
         doc = self.collection.find_one(criteria)
         logger.info(f"Document retrieved: {doc}")
         return doc
+    
+    def store_raw_documents(self, documents):
+        return super().store_raw_documents(documents)
+    
+    def embed_all_docs(self, documents):
+        return super().embed_all_docs(documents)
