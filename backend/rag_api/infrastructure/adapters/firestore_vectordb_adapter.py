@@ -22,7 +22,7 @@ class FirestoreVectorDBAdapter(VectorDBPort):
             self.client = firestore.Client(project=project_id, database=db_name)
             self.db = firestore.Client(project=project_id, database=db_name)
             self.collection = self.client.collection(collection_name)
-            self.embeddings = VertexAIEmbeddings(model_name="textembedding-gecko@latest",
+            self.embeddings = VertexAIEmbeddings(model_name="text-embedding-004",
                                 project=project_id)
             self.vector_store = FirestoreVectorStore(
                                     collection=collection_name,
