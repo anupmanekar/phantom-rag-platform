@@ -107,9 +107,9 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Jira RAG App",
+        title="QA RAG Based Services",
         version="1.0.0",
-        description="API documentation for the Jira RAG App",
+        description="API documentation for the QA RAG App",
         routes=app.routes,
     )
     app.openapi_schema = openapi_schema

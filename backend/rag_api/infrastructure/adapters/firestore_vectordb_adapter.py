@@ -18,18 +18,24 @@ class FirestoreVectorDBAdapter(VectorDBPort):
 
     def __init__(self, project_id, db_name, collection_name):
         if not hasattr(self, 'initialized'):
-            logger.info(f"Connecting to Firestore at {project_id}")
-            self.client = firestore.Client(project=project_id, database=db_name)
-            self.db = firestore.Client(project=project_id, database=db_name)
-            self.collection = self.client.collection(collection_name)
-            self.embeddings = VertexAIEmbeddings(model_name="text-embedding-004",
-                                project=project_id)
-            self.vector_store = FirestoreVectorStore(
-                                    collection=collection_name,
-                                    embedding_service=self.embeddings,
-                                    embedding_field="embedding_field",
-                                )
-            self.initialized = True
+            try:
+                logger.info(f"Connecting Now to Firestore at {project_id}")
+                self.client = firestore.Client(project=project_id, database=db_name)
+                self.db = firestore.Client(project=project_id, database=db_name)
+                self.collection = self.client.collection(collection_name)
+                self.embeddings = VertexAIEmbeddings(model_name="text-embedding-004",
+                                    project=project_id)
+                self.vector_store = FirestoreVectorStore(
+                                        collection=collection_name,
+                                        embedding_service=self.embeddings,
+                                        embedding_field="embedding_field",
+                                    )
+                self.initialized = True
+            except Exception as e:
+                logger.error(f"Error initializing FirestoreVectorDBAdapter: {e}")
+                raise e
+
+
 
     @classmethod
     def get_instance(cls, project_id=None, db_name=None, collection_name=None):

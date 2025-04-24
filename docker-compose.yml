@@ -21,6 +21,33 @@ services:
       - AZURE_DEVOPS_URL=${AZURE_DEVOPS_URL}
       - AZURE_DEVOPS_PAT=${AZURE_DEVOPS_PAT}
       - AZURE_DEVOPS_PROJECT=${AZURE_DEVOPS_PROJECT}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - FIRESTORE_DB_NAME=${FIRESTORE_DB_NAME}
+      - FIRESTORE_COLLECTION_NAME=${FIRESTORE_COLLECTION_NAME}
+      - GOOGLE_CLOUD_PROJECT=${GCP_PROJECT_ID}
+      - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
+      - GOOGLE_GENAI_USE_VERTEXAI=${GOOGLE_GENAI_USE_VERTEXAI}
+
+  jobs:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.jobs
+      args:
+        JOB_NAME: ingest_requirements.py
+    container_name: qa_rag_jobs
+    networks:
+      - app-network
+    environment:
+      - JIRA_URL=${JIRA_URL}
+      - JIRA_USERNAME=${JIRA_USERNAME}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - COLLECTION_NAME=${COLLECTION_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AZURE_DEVOPS_URL=${AZURE_DEVOPS_URL}
+      - AZURE_DEVOPS_PAT=${AZURE_DEVOPS_PAT}
+      - AZURE_DEVOPS_PROJECT=${AZURE_DEVOPS_PROJECT} 
 
   frontend:
     build:
