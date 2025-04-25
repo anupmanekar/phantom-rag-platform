@@ -3,6 +3,7 @@ uvicorn
 langchain
 langchain-fireworks
 pymongo
+pyarrow==19.0.0
 pydantic
 langchain-mongodb
 python-dotenv

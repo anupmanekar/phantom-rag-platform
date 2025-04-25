@@ -20,29 +20,47 @@ This application is designed to provide responses to any queries regarding ticke
 
 ## Setup Instructions
 
-### Backend
-
-1. Set up a Python environment and install necessary dependencies:
-    ```sh
-    pip install fastapi uvicorn langchain fireworksai pymongo
+### Firestore
+1. Setup Firestore (default) collection in GCP Firestore
+2. Create a collection named "user_requirements"
+3. Create Vector index on Firestore with 768 dimension
+    ```
+    gcloud firestore indexes composite create \
+    --collection-group=user_requirements \
+    --query-scope=COLLECTION \
+    --field-config=order=ASCENDING,field-path="color" \
+    --field-config field-path=vector-field,vector-config='{"dimension":"768", "flat": "{}"}' \
+    --database=default
     ```
 
-2. Create a connection to Jira using Jira's REST API to fetch ticket information.
+### Jobs
 
-3. Convert the fetched ticket information into embeddings using FireworksAI embeddings.
-
-4. Store the embeddings in MongoDB as a vector database.
-
-5. Implement a search functionality that uses cosine similarity of 80% to find relevant embeddings.
-
-6. Summarize the top 5 search results using Langchain's LLM orchestration.
-
-7. Expose the search query functionality through a REST API using FastAPI.
-
-8. Run the FastAPI application:
-    ```sh
-    uvicorn backend.app:app --reload
+1. Build docker image
     ```
+    docker build -t <image_name> -f ./backend/Dockerfile.jobs ./backend
+    ```
+2. Push docker to hub
+    ```
+    docker push <image_name>
+    ```
+3. Deploy to GCP Cloud Run Jobs
+
+    ![Image](./images/cloud_run_job_config.png)
+
+4. Ensure that service account is attached to your Cloud Run Job
+
+### Backend Services
+
+1. Build backend services
+    ```
+    docker build --platform linux/amd64 -t <image_name> ./backend
+    ```
+2. Run them locally
+    ```
+    docker run -p 8080:8080 <image_name>
+    ```
+3. Deploy on GCP Cloud Run Services
+
 
 ### Frontend
 
@@ -58,19 +76,6 @@ This application is designed to provide responses to any queries regarding ticke
 4. Run the Next.js application:
     ```sh
     npm run dev
-    ```
-
-### Monitoring and Observability
-
-1. Integrate Langsmith for monitoring and observability of the application.
-
-2. Set up logging and error handling to track the performance and issues in the application.
-
-3. Implement metrics and dashboards to monitor the health and usage of the application.
-
-4. Start the Prometheus server for monitoring:
-    ```sh
-    python monitoring/observability.py
     ```
 
 ## Running the Application
@@ -102,45 +107,6 @@ This application is designed to provide responses to any queries regarding ticke
     ```sh
     python monitoring/observability.py
     ```
-
-## Docker Setup Instructions
-
-### Building Docker Containers
-
-1. Build the backend Docker container:
-    ```sh
-    docker build -t backend ./backend
-    ```
-
-2. Build the frontend Docker container:
-    ```sh
-    docker build -t frontend ./frontend
-    ```
-
-### Running Docker Containers
-
-1. Run the backend Docker container:
-    ```sh
-    docker run -p 8000:8000 backend
-    ```
-
-2. Run the frontend Docker container:
-    ```sh
-    docker run -p 3000:3000 frontend
-    ```
-
-### Using Docker Compose
-
-1. Start all services using docker-compose:
-    ```sh
-    docker-compose up --build
-    ```
-
-2. Access the backend API at `http://localhost:8000`.
-
-3. Access the frontend application at `http://localhost:3000`.
-
-4. MongoDB will be running at `mongodb://localhost:27017`.
 
 ## Ingestion Endpoint
 
