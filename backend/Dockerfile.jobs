@@ -1,0 +1,23 @@
+# Use python:3.11-slim as the base image
+# Use a build argument to make the platform configurable
+ARG PLATFORM=linux/amd64
+FROM --platform=${PLATFORM} python:3.13-alpine AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the backend directory into the Docker image
+COPY . /app
+
+# Copy the .env file into the Docker image
+COPY .env /app/.env
+
+# Copy the requirements.txt file into the Docker image
+COPY requirements.txt /app/requirements.txt
+# COPY firestore-genai-experiments.json /app/firestore-genai-experiments.json
+
+# Install the required dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Set entrypoing to run python script as cmd line
+# ENTRYPOINT ["python3", "-m", "rag_api.entrypoints.cmd.ingest_requirements"]

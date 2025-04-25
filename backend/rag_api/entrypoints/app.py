@@ -27,18 +27,18 @@ class IngestRequest(BaseModel):
     IngestionType: str
 
 @app.get("/generate-bdd-for-ticket")
-async def generate_bdd(ticket_id: int, llm_service: LLMPort = Depends(lambda: di[LLMPort]), 
-                       vector_db: VectorDBPort = Depends(lambda: di[VectorDBPort])) -> JSONResponse:
+async def generate_bdd(ticket_id: int, llm_service: LLMPort = Depends(lambda: di["GoogleGenAILLM"]), 
+                    vector_db: VectorDBPort = Depends(lambda: di["FirestoreVectorDB"])) -> JSONResponse:
     try:
         rag_handler = RAGHandler(llm_service, vector_db)
-        results = rag_handler.generate_bdd_for_ticket(ticket_id)
+        results = rag_handler.generate_bdd_for_ticket_from_firestore(ticket_id)
         return {"results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/generate-bdd-for-features")
-async def generate_bdd(description: str, llm_service: LLMPort = Depends(lambda: di[LLMPort]), 
-                    vector_db: VectorDBPort = Depends(lambda: di[VectorDBPort])) -> JSONResponse:
+async def generate_bdd(description: str, llm_service: LLMPort = Depends(lambda: di["GoogleGenAILLM"]), 
+                    vector_db: VectorDBPort = Depends(lambda: di["FirestoreVectorDB"])) -> JSONResponse:
     try:
         rag_handler = RAGHandler(llm_service, vector_db)
         results = rag_handler.generate_bdd_for_features(features=description)
@@ -47,8 +47,8 @@ async def generate_bdd(description: str, llm_service: LLMPort = Depends(lambda: 
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/answer-query")
-async def search(query: Query, llm_service: LLMPort = Depends(lambda: di[LLMPort]), 
-                    vector_db: VectorDBPort = Depends(lambda: di[VectorDBPort])) -> JSONResponse:
+async def search(query: Query, llm_service: LLMPort = Depends(lambda: di["GoogleGenAILLM"]), 
+                    vector_db: VectorDBPort = Depends(lambda: di["FirestoreVectorDB"])) -> JSONResponse:
     try:
         rag_handler = RAGHandler(llm_service, vector_db)
         results = rag_handler.answer_query(query.query)
@@ -64,13 +64,13 @@ async def ingest_jira(request: IngestRequest, requirements_service: Requirements
         tickets = requirements_service.fetch_tickets(jql)[:request.MaxTickets]
         embeddings = requirements_service.convert_to_embeddings(tickets)
         
-        vector_db.store_embeddings(embeddings)
+        vector_db.store_documents(embeddings)
         
         return {"message": "Ingestion successful"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/ingest-azure")
+@app.get("/ingest-azure-in-mongodb")
 async def ingest_azure(requirements_service: RequirementsStorePort = Depends(lambda: di["AzureRequirements"]), 
                        vector_db: VectorDBPort = Depends(lambda: di[VectorDBPort])) -> JSONResponse:
     try:
@@ -81,19 +81,35 @@ async def ingest_azure(requirements_service: RequirementsStorePort = Depends(lam
         #tickets = azure_connector.fetch_tickets(query)[:request.MaxTickets]
         tickets = requirements_service.fetch_tickets(query)[:100]
         embeddings = requirements_service.convert_to_embeddings(tickets)
-        vector_db.store_embeddings(embeddings)
+        vector_db.store_documents(embeddings)
         
         return {"message": "Ingestion successful"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/ingest-azure-in-firestore")
+async def ingest_requirements(requirements_service: RequirementsStorePort = Depends(lambda: di["AzureRequirements"]), 
+                       vector_db: VectorDBPort = Depends(lambda: di["FirestoreVectorDB"])) -> JSONResponse:
+    try:
+        print("Ingesting Azure DevOps")
+        project = os.environ.get("AZURE_DEVOPS_PROJECT")
+        # query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.TeamProject] = '{request.ProjectKey}'"
+        query = f"Select [System.Id], [System.Title], [System.Description] From WorkItems Where [System.WorkItemType] = 'Task' and [System.TeamProject] = '{project}'"
+        #tickets = azure_connector.fetch_tickets(query)[:request.MaxTickets]
+        tickets = requirements_service.fetch_tickets(query)[:100]
+        user_requirements = requirements_service.convert_tickets_to_user_requirements(tickets)
+        vector_db.store_documents(user_requirements)
+        return {"message": "Ingestion successful"}
+    except Exception as e:
+        raise Exception(f"Error: {str(e)}")
+
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Jira RAG App",
+        title="QA RAG Based Services",
         version="1.0.0",
-        description="API documentation for the Jira RAG App",
+        description="API documentation for the QA RAG App",
         routes=app.routes,
     )
     app.openapi_schema = openapi_schema
@@ -102,4 +118,4 @@ def custom_openapi():
 app.openapi = custom_openapi
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

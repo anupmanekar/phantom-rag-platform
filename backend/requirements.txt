@@ -3,6 +3,7 @@ uvicorn
 langchain
 langchain-fireworks
 pymongo
+pyarrow==19.0.0
 pydantic
 langchain-mongodb
 python-dotenv
@@ -11,3 +12,9 @@ azure-core
 azure-devops
 msrest
 kink
+google-cloud-firestore
+langchain-google-firestore
+langchain-google-vertexai
+functions-framework
+google-events
+google-genai
