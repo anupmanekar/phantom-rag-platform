@@ -1,12 +1,12 @@
 import os
 from kink import di
-from rag_api.infrastructure.adapters.azure_devops_adapter import AzureDevopsAdapter
-from rag_api.infrastructure.adapters.jira_adapter import JiraAdapter
-from rag_api.infrastructure.adapters.mongo_vectordb_adapter import MongoVectorDBAdapter
-from rag_api.infrastructure.adapters.fireworks_llm_adapter import FireworksLLMAdapter
-from rag_api.infrastructure.adapters.documentai_llm_adapter import DocumentAILLMAdapter
-from rag_api.infrastructure.adapters.googlegenai_llm_adapter import GoogleGenAILLMAdapter
-from rag_api.infrastructure.adapters.firestore_vectordb_adapter import FirestoreVectorDBAdapter
+from rag_api.infrastructure.adapters.ticket_source.azure_devops import AzureDevopsAdapter
+from rag_api.infrastructure.adapters.ticket_source.jira import JiraAdapter
+from rag_api.infrastructure.adapters.vectordb.mongodb import MongoVectorDBAdapter
+from rag_api.infrastructure.adapters.llm.fireworksai import FireworksLLMAdapter
+from rag_api.infrastructure.adapters.llm.documentai import DocumentAILLMAdapter
+from rag_api.infrastructure.adapters.llm.googlegenai import GoogleGenAILLMAdapter
+from rag_api.infrastructure.adapters.vectordb.firestore import FirestoreVectorDBAdapter
 from rag_api.infrastructure.ports import VectorDBPort, LLMPort, RequirementsStorePort
 
 di["AzureRequirements"] = lambda _: AzureDevopsAdapter.get_instance (
