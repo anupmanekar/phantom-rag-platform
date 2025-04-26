@@ -45,8 +45,11 @@ class FirestoreVectorDBAdapter(VectorDBPort):
 
     def store_documents(self, documents: list[UserRequirement]):
         for doc in documents:
+            if(self.collection.document(doc.id).get().exists):
+                print(f"Document already exists: {doc.ticket_id}")
+                continue
             print(f"Ingesting document: {doc.ticket_id}")
-            self.collection.add(doc.model_dump())
+            self.collection.add(doc.model_dump(), doc.id)
         return
 
     def search_embeddings(self, query_embedding, threshold=0.8):
