@@ -1,7 +1,6 @@
-# Use python:3.11-slim as the base image
-# Use a build argument to make the platform configurable
 ARG PLATFORM=linux/amd64
-FROM --platform=${PLATFORM} python:3.13-alpine AS build
+# Use python:3.11-slim as the base image
+FROM python:3.13-slim
 
 # Set the working directory
 WORKDIR /app

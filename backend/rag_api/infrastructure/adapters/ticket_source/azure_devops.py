@@ -7,7 +7,7 @@ from kink import inject
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from azure.devops.v7_1.work_item_tracking.models import Wiql, WorkItem
-from rag_api.domain.user_requirement import UserRequirement
+from rag_api.domain.user_requirement import UserRequirement, TicketSourceEnum
 from azure.devops.v7_1.work_item_tracking.work_item_tracking_client import WorkItemTrackingClient
 from rag_api.infrastructure.ports import RequirementsStorePort
 import re
@@ -96,8 +96,13 @@ class AzureDevopsAdapter(RequirementsStorePort):
             images = []
             for tag in image_tags:
                 images.append(tag)
+            ticket_id = str(ticket_dict['id'])
+            source = TicketSourceEnum.AZURE.value
+            id = f"{source}_{ticket_id}"
             user_requirements.append(UserRequirement(
-                ticket_id=str(ticket_dict['id']),
+                id=id,
+                source=source,
+                ticket_id=ticket_id,
                 title=ticket_dict['fields']['System.Title'],
                 description=description,
                 images=images,
