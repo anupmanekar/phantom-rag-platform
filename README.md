@@ -1,22 +1,20 @@
-# RAG-based Jira Ticket Query Application
+# RAG-based Requirements Ingestion & Test Generation
 
-This application is designed to provide responses to any queries regarding tickets in Jira using Retrieval Augmented Generation (RAG). The application utilizes the following technology stack:
+Soluiton for ingesting requirements from Azure DevOps or Jira into firestore and then using RAG based approach to comprehensively generate tests from those requirements.
 
 - **Python**: Primary backend language
-- **Langchain**: Framework for LLM Orchestration
-- **LLM Provider**: FireworksAI
-- **Vector DB**: MongoDB
-- **Operational DB**: MongoDB
-- **Monitoring & Observability**: Langsmith
+- **LLM Provider**: Gemini, FireworksAI
+- **Vector DB**: Firestore
+- **Operational DB**: Firestore
 
 ## Features
 
-- Connects with Jira and converts ticket information into embeddings.
-- Stores embeddings in MongoDB as a vector database.
-- Searches embeddings with cosine similarity of 80%.
-- Summarizes the top 5 search results.
-- Exposes search query functionality through an API.
-- Provides a Next.js based front end with chat functionality to integrate with the API.
+- Ingest the requirements from Azure Devops to Firestore
+- Read images and store the information related to image in Firestore for each requirement
+- Convert the requirement titles to embeddings
+- Generate BDD Tests by requirement ID or description based on RAG
+
+Ingestion, Process Images and Conversion to embeddings are available as command line jobs as well as API
 
 ## Setup Instructions
 
@@ -33,7 +31,7 @@ This application is designed to provide responses to any queries regarding ticke
     --database=default
     ```
 
-### Jobs
+### Deploy ingestion workloads as Jobs
 
 1. Build docker image
     ```
@@ -49,7 +47,7 @@ This application is designed to provide responses to any queries regarding ticke
 
 4. Ensure that service account is attached to your Cloud Run Job
 
-### Backend Services
+### Deploy ingestion workloads as API
 
 1. Build backend services
     ```
@@ -61,99 +59,95 @@ This application is designed to provide responses to any queries regarding ticke
     ```
 3. Deploy on GCP Cloud Run Services
 
-
-### Frontend
-
-1. Set up a Next.js project:
-    ```sh
-    npx create-next-app@latest
-    ```
-
-2. Create a chat interface where users can enter their queries.
-
-3. Integrate the chat interface with the backend API to send user queries and display the summarized results.
-
-4. Run the Next.js application:
-    ```sh
-    npm run dev
-    ```
-
-## Running the Application
+## Running the Application from workstation
 
 1. Start the backend FastAPI application:
     ```sh
     uvicorn backend.app:app --reload
     ```
 
-2. Start the frontend Next.js application:
-    ```sh
-    npm run dev
-    ```
+### Frontend
 
-3. Start the Prometheus server for monitoring:
-    ```sh
-    python monitoring/observability.py
-    ```
+Need to do lot here.
 
-## Monitoring and Observability
+ QA RAG Based Services API
 
-1. Integrate Langsmith for monitoring and observability of the application.
+API documentation for the QA RAG App
 
-2. Set up logging and error handling to track the performance and issues in the application.
+**Version:** 1.0.0
+**OpenAPI:** 3.1.0
 
-3. Implement metrics and dashboards to monitor the health and usage of the application.
+---
 
-4. Start the Prometheus server for monitoring:
-    ```sh
-    python monitoring/observability.py
-    ```
+## API
 
-## Ingestion Endpoint
+- [Endpoints](#endpoints)
+    - [GET /generate-bdd-for-ticket](#get-generate-bdd-for-ticket)
+    - [GET /generate-bdd-for-features](#get-generate-bdd-for-features)
+    - [POST /answer-query](#post-answer-query)
+    - [GET /ingest-azure-in-firestore](#get-ingest-azure-in-firestore)
+- [Schemas](#schemas)
+    - [IngestRequest](#ingestrequest)
+    - [Query](#query)
+    - [HTTPValidationError](#httpvalidationerror)
+    - [ValidationError](#validationerror)
 
-### Ingest Tickets
+---
 
-The application provides an endpoint to ingest current tickets as embeddings into the vector database. The ingestion is based on the following parameters:
+## Endpoints
 
-- **ProjectKey**: The key of the Jira project.
-- **MaxTickets**: The maximum number of tickets to ingest.
-- **IngestionType**: The type of ingestion (Full/Delta).
+### GET `/generate-bdd-for-ticket`
 
-#### Endpoint
+**Generate Bdd**
 
-`POST /ingest`
+- **Query Parameters:**
+    - `ticket_id` (integer, required): Ticket Id
+- **Responses:**
+    - `200 OK`: Successful Response
+    - `422 Validation Error`: [HTTPValidationError](#httpvalidationerror)
 
-#### Request Body
+---
 
-```json
+### GET `/generate-bdd-for-features`
+
+**Generate Bdd**
+
+- **Query Parameters:**
+    - `description` (string, required): Description
+- **Responses:**
+    - `200 OK`: Successful Response
+    - `422 Validation Error`: [HTTPValidationError](#httpvalidationerror)
+
+---
+
+### POST `/answer-query`
+
+**Search**
+
+- **Request Body:** [Query](#query) (application/json, required)
+
+```
 {
-  "ProjectKey": "string",
-  "MaxTickets": 10,
-  "IngestionType": "Full"
+  "query": "string"
 }
 ```
 
-#### Response
+- **Responses:**
+    - `200 OK`: Successful Response
+    - `422 Validation Error`: [HTTPValidationError](#httpvalidationerror)
 
-```json
-{
-  "message": "Ingestion successful"
-}
-```
+---
 
-### Example
 
-To ingest tickets from a Jira project with the key "PROJ", with a maximum of 10 tickets, and using full ingestion:
 
-```sh
-curl -X POST "http://localhost:8000/ingest" -H "Content-Type: application/json" -d '{"ProjectKey": "PROJ", "MaxTickets": 10, "IngestionType": "Full"}'
-```
+### GET `/ingest-azure-in-firestore`
 
-## Swagger Documentation
+**Ingest Requirements**
 
-The application provides Swagger documentation for the supported APIs. You can access the Swagger UI at the following URL:
+- **Responses:**
+    - `200 OK`: Successful Response
 
-```
-http://localhost:8000/docs
-```
+---
 
-This documentation provides a user-friendly interface to explore and test the available API endpoints.
+
+

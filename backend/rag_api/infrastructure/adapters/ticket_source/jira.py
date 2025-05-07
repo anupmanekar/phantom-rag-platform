@@ -1,7 +1,5 @@
 import requests
 from langchain_fireworks import FireworksEmbeddings
-import os
-import base64
 from requests.auth import HTTPBasicAuth
 from rag_api.infrastructure.ports import RequirementsStorePort
 
