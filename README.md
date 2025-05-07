@@ -1,6 +1,6 @@
 # RAG-Based Requirements Processing & Test Generation
 
-Soluiton for ingesting requirements from Azure DevOps or Jira into firestore and then using RAG based approach to comprehensively generate tests from those requirements.
+Open solution for processing requirements from Azure DevOps or Jira into firestore and then using RAG based approach to comprehensively generate tests from those requirements.
 
 - **Python**: Primary backend language
 - **LLM Provider**: Gemini, FireworksAI
@@ -66,16 +66,9 @@ Ingestion, Process Images and Conversion to embeddings are available as command 
     uvicorn backend.app:app --reload
     ```
 
-### Frontend
+## Frontend
 
 Need to do lot here.
-
- QA RAG Based Services API
-
-API documentation for the QA RAG App
-
-**Version:** 1.0.0
-**OpenAPI:** 3.1.0
 
 ---
 
