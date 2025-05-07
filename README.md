@@ -1,4 +1,4 @@
-# RAG-based Requirements Ingestion & Test Generation
+# RAG-Based Requirements Processing & Test Generation
 
 Soluiton for ingesting requirements from Azure DevOps or Jira into firestore and then using RAG based approach to comprehensively generate tests from those requirements.
 
