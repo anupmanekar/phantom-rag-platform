@@ -41,9 +41,7 @@ Ingestion, Process Images and Conversion to embeddings are available as command 
     ```
     docker push <image_name>
     ```
-3. Deploy to GCP Cloud Run Jobs
-
-    ![Image](./images/cloud_run_job_config.png)
+3. Deploy to GCP Cloud Run Jobs or your favourite cloud service.
 
 4. Ensure that service account is attached to your Cloud Run Job
 
